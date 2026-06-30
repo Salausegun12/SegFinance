@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id                  String        @id @default(uuid())
+  name                String
+  email               String        @unique
+  passwordHash        String?
+  googleId            String?
+  photoUrl            String?
+  currency            String        @default("NGN")
+  monthlyIncome       Decimal?
+  financialGoalAmount Decimal?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  transactions Transaction[]
+  budgets      Budget[]
+  savingsGoals  SavingsGoal[]
+  notifications Notification[]
+
+  @@index([id])
+}
+
+model Transaction {
+  id            String          @id @default(uuid())
+  userId        String
+  amount        Decimal
+  type          TransactionType
+  category      String
+  description   String?
+  paymentMethod String
+  date          DateTime
+  createdAt     DateTime        @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Budget {
+  id          String   @id @default(uuid())
+  userId      String
+  category    String
+  limitAmount Decimal
+  month       String
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, month])
+  @@index([userId])
+}
+
+model SavingsGoal {
+  id             String    @id @default(uuid())
+  userId         String
+  title          String
+  targetAmount   Decimal
+  currentAmount  Decimal   @default(0)
+  deadline       DateTime? @db.Date
+  createdAt      DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
