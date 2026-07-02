@@ -1,10 +1,16 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '../theme';
 import { useAuthStore } from '../store/authStore';
+import { ProfileStackParamList } from '../navigation/types';
+
+type NavProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileMain'>;
 
 export default function ProfileScreen() {
   const { colors, spacing, borderRadius } = useTheme();
   const { user, logout } = useAuthStore();
+  const navigation = useNavigation<NavProp>();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -12,6 +18,14 @@ export default function ProfileScreen() {
         <Text style={[styles.name, { color: colors.text }]}>{user?.name}</Text>
         <Text style={[styles.email, { color: colors.textSecondary }]}>{user?.email}</Text>
       </View>
+
+      <TouchableOpacity
+        style={[styles.settingsButton, { backgroundColor: colors.surface, borderRadius: borderRadius.md, borderColor: colors.border }]}
+        onPress={() => navigation.navigate('Settings')}
+      >
+        <Text style={[styles.settingsText, { color: colors.text }]}>Settings</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         style={[styles.logoutButton, { backgroundColor: colors.error, borderRadius: borderRadius.md }]}
         onPress={logout}
@@ -38,6 +52,16 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 14,
     marginTop: 4,
+  },
+  settingsButton: {
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  settingsText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   logoutButton: {
     padding: 16,

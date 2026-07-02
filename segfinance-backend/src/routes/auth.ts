@@ -73,6 +73,12 @@ router.post("/login", async (req: Request, res: Response) => {
 
 router.post("/google", async (req: Request, res: Response) => {
   try {
+    if (!firebaseAuth) {
+      return res
+        .status(501)
+        .json({ message: "Google sign-in is not configured" });
+    }
+
     const { idToken } = req.body;
 
     if (!idToken) {

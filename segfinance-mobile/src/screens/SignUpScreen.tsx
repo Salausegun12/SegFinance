@@ -36,7 +36,7 @@ export default function SignUpScreen() {
 
   const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
   const [, googleResponse, promptGoogle] = useIdTokenAuthRequest(
-    googleClientId ? { clientId: googleClientId } : ({} as any)
+    { clientId: googleClientId ?? '' }
   );
 
   useEffect(() => {
@@ -173,19 +173,23 @@ export default function SignUpScreen() {
         </Text>
       </TouchableOpacity>
 
-      {googleClientId && (
-        <TouchableOpacity
-          style={[styles.googleButton, { borderColor: colors.border, borderRadius: borderRadius.md }]}
-          onPress={() => promptGoogle()}
-          disabled={googleLoading}
-        >
-          {googleLoading ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={[styles.buttonText, { color: colors.text }]}>Sign up with Google</Text>
-          )}
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity
+        style={[styles.googleButton, { borderColor: colors.border, borderRadius: borderRadius.md }]}
+        onPress={() => {
+          if (!googleClientId) {
+            Alert.alert('Not Configured', 'Google Sign-In requires a Google Client ID.');
+            return;
+          }
+          promptGoogle();
+        }}
+        disabled={googleLoading}
+      >
+        {googleLoading ? (
+          <ActivityIndicator color={colors.text} />
+        ) : (
+          <Text style={[styles.buttonText, { color: colors.text }]}>Sign up with Google</Text>
+        )}
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.linkContainer}
