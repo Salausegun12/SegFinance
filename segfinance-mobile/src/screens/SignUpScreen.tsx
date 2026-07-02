@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useNavigation } from '@react-navigation/native';
@@ -12,14 +12,15 @@ import { AuthStackParamList } from '../navigation/types';
 
 WebBrowser.maybeCompleteAuthSession();
 
-type LoginForm = {
+type SignUpForm = {
+  name: string;
   email: string;
   password: string;
 };
 
-type NavProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
+type NavProp = NativeStackNavigationProp<AuthStackParamList, 'SignUp'>;
 
-export default function LoginScreen() {
+export default function SignUpScreen() {
   const { colors, spacing, borderRadius } = useTheme();
   const setAuth = useAuthStore((s) => s.setAuth);
   const navigation = useNavigation<NavProp>();
@@ -29,8 +30,8 @@ export default function LoginScreen() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginForm>({
-    defaultValues: { email: '', password: '' },
+  } = useForm<SignUpForm>({
+    defaultValues: { name: '', email: '', password: '' },
   });
 
   const googleClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
@@ -61,12 +62,16 @@ export default function LoginScreen() {
     }
   };
 
-  const onSubmit = useCallback(async (data: LoginForm) => {
+  const onSubmit = useCallback(async (data: SignUpForm) => {
     try {
-      const res = await authApi.login({ email: data.email, password: data.password });
+      const res = await authApi.register({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
       await setAuth(res.user, res.token);
     } catch (err: any) {
-      Alert.alert('Error', err.message ?? 'Login failed');
+      Alert.alert('Error', err.message ?? 'Registration failed');
     }
   }, [setAuth]);
 
@@ -78,8 +83,34 @@ export default function LoginScreen() {
   });
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>SegFinance</Text>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+
+      <Controller
+        control={control}
+        name="name"
+        rules={{ required: 'Name is required' }}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <>
+            <TextInput
+              style={[styles.input, inputStyle(!!errors.name)]}
+              placeholder="Full Name"
+              placeholderTextColor={colors.textSecondary}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              autoCapitalize="words"
+            />
+            {errors.name && (
+              <Text style={[styles.errorText, { color: colors.error }]}>{errors.name.message}</Text>
+            )}
+          </>
+        )}
+      />
 
       <Controller
         control={control}
@@ -138,7 +169,7 @@ export default function LoginScreen() {
         disabled={isSubmitting}
       >
         <Text style={[styles.buttonText, { color: colors.textOnPrimary }]}>
-          {isSubmitting ? 'Signing In...' : 'Log In'}
+          {isSubmitting ? 'Creating Account...' : 'Sign Up'}
         </Text>
       </TouchableOpacity>
 
@@ -151,42 +182,38 @@ export default function LoginScreen() {
           {googleLoading ? (
             <ActivityIndicator color={colors.text} />
           ) : (
-            <Text style={[styles.buttonText, { color: colors.text }]}>Sign in with Google</Text>
+            <Text style={[styles.buttonText, { color: colors.text }]}>Sign up with Google</Text>
           )}
         </TouchableOpacity>
       )}
 
       <TouchableOpacity
         style={styles.linkContainer}
-        onPress={() => navigation.navigate('SignUp')}
+        onPress={() => navigation.goBack()}
       >
         <Text style={[styles.linkText, { color: colors.textSecondary }]}>
-          Don't have an account?{' '}
-          <Text style={{ color: colors.primary, fontWeight: '600' }}>Sign Up</Text>
+          Already have an account?{' '}
+          <Text style={{ color: colors.primary, fontWeight: '600' }}>Log In</Text>
         </Text>
       </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.linkContainer}
-        onPress={() => navigation.navigate('ForgotPassword')}
-      >
-        <Text style={[styles.linkText, { color: colors.primary }]}>Forgot Password?</Text>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  content: {
     justifyContent: 'center',
     padding: 24,
+    flexGrow: 1,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 48,
+    marginBottom: 36,
   },
   input: {
     borderWidth: 1,
@@ -216,7 +243,7 @@ const styles = StyleSheet.create({
   },
   linkContainer: {
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 24,
   },
   linkText: {
     fontSize: 14,

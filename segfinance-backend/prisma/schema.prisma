@@ -19,6 +19,8 @@ model User {
   passwordHash        String?
   googleId            String?
   photoUrl            String?
+  resetToken          String?
+  resetTokenExpiry    DateTime?
   currency            String        @default("NGN")
   monthlyIncome       Decimal?
   financialGoalAmount Decimal?

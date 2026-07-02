@@ -2,6 +2,7 @@ export type User = {
   id: string;
   email: string;
   name: string;
+  photoUrl?: string | null;
 };
 
 export type AuthState = {
@@ -22,9 +23,30 @@ export type RegisterCredentials = {
   name: string;
 };
 
+export type GoogleSignInCredentials = {
+  idToken: string;
+};
+
+export type ForgotPasswordCredentials = {
+  email: string;
+};
+
+export type ResetPasswordCredentials = {
+  token: string;
+  newPassword: string;
+};
+
 export type AuthResponse = {
   user: User;
   token: string;
+};
+
+export type ForgotPasswordResponse = {
+  message: string;
+};
+
+export type ResetPasswordResponse = {
+  message: string;
 };
 
 export type Transaction = {
