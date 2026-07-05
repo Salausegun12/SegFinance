@@ -1,4 +1,4 @@
-import { api, apiRequest } from './client';
+import { api, getBaseUrl } from './client';
 import { useAuthStore } from '../store/authStore';
 import {
   Transaction,
@@ -20,8 +20,7 @@ export const transactionsApi = {
     api.delete<{ message: string }>(`/transactions/${id}`),
   exportCsv: async (): Promise<string> => {
     const token = useAuthStore.getState().token;
-    const base = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
-    const res = await fetch(`${base}/transactions/export`, {
+    const res = await fetch(`${getBaseUrl()}/transactions/export`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error('Export failed');

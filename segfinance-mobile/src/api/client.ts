@@ -1,12 +1,28 @@
+import Constants from 'expo-constants';
 import { useAuthStore } from '../store/authStore';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+function getBaseUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  const hostIp = Constants.expoConfig?.hostUri?.split(':')[0];
+  if (hostIp) {
+    return `http://${hostIp}:3000/api`;
+  }
+
+  return 'http://localhost:3000/api';
+}
+
+const BASE_URL = getBaseUrl();
 
 type RequestOptions = {
   method?: string;
   body?: unknown;
   headers?: Record<string, string>;
 };
+
+export { getBaseUrl };
 
 export async function apiRequest<T>(
   endpoint: string,

@@ -1,0 +1,6 @@
+Starting project at C:\Users\SALAU OLUWASEGUN\Desktop\myapp\SegFinance\segfinance-mobile
+Starting Metro Bundler
+
+ WARN  Failed to download the latest version of React Native DevTools. Using a fallback version instead. Connect to the internet or check your network settings.
+Waiting on http://localhost:8081
+Logs for your project will appear below.
